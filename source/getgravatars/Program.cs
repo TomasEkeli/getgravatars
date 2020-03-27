@@ -56,6 +56,12 @@ author2.othername@company.com|Author2 Othername
                 .read(options.input_file)
                 .ConfigureAwait(true);
 
+            if (all_lines_input.Length == 0)
+            {
+                Console.WriteLine("No gravatars to download");
+                return;
+            }
+
             var avatar_infos = all_lines_input
                 .Select(_ => parser.ToAvatarInfo(_));
 
