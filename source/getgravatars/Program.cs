@@ -17,6 +17,21 @@ namespace app
 
         static async Task Main(string[] args)
         {
+            if (args == null || args.Length < 1)
+            {
+                System.Console.WriteLine();
+                System.Console.WriteLine("Usage: getgravatars inputfile outputdirectory");
+                System.Console.WriteLine("Duplicates will only be downloaded once");
+                System.Console.WriteLine();
+                System.Console.WriteLine("The inputfile should contain emails and full names, one on each line");
+                System.Console.WriteLine("Like this:");
+                System.Console.WriteLine();
+                System.Console.WriteLine("author.name@company.com|Author Name");
+                System.Console.WriteLine("author2.othername@company.com|Author2 Othername");
+                System.Console.WriteLine();
+                return;
+            }
+
             var input_file = args[0];
 
             output_directory = args.Length > 1

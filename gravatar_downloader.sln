@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{E1040335-B957-42C8-8E4E-D8B7B4F06DDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "app", "source\app\app.csproj", "{D4FC7C5A-0086-49D8-B436-6C9C87CE388B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "getgravatars", "source\getgravatars\getgravatars.csproj", "{D4FC7C5A-0086-49D8-B436-6C9C87CE388B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
