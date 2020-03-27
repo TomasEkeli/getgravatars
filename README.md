@@ -2,6 +2,9 @@
 
 Console application to download gravatar images and store them in a local folder.
 
+This does NOT send e-mails to gravatar. It hashes e-mails and looks up these hashes
+on gravatar.
+
 Intended use us is to get the images of contributors in [gource](https://gource.io)
 videos, but this can also be used for any other case where you'd like a local copy
 of the gravatars of a set of e-mail addresses.
