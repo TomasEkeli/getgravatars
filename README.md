@@ -49,6 +49,12 @@ Example of an input-file:
 > author.name@company.com\|Author Name<br/>
 > author2.othername@company.com\|Author2 Othername
 
+
+## Example
+This is a result of the commands described below run on v1 of `getgravatars`
+
+[![getgravatar v1 gource](/Documentation/video_screenshot.png)](https://peertube.dk/videos/watch/0f26539a-95a6-4dc2-8a73-ab3fa01fe179?loop=1&autoplay=1 "getgravatar v1 gource")
+
 ## Use With Gource
 
 The goal is to get gource to generate a visualisation with the gravatar images.
