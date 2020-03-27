@@ -16,7 +16,7 @@ namespace getgravatars
             'o',
             "output",
             Required = false,
-            HelpText = "Direcotry to output gravatar images to (default is \"outoput\")")
+            HelpText = "Directory to output gravatar images to (default is \"output\")")
         ]
         public string output_directory { get; set; } = "output";
 
