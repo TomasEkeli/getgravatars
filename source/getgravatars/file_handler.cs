@@ -5,13 +5,6 @@ namespace getgravatars
 {
     public class file_handler
     {
-        readonly logger _logger;
-
-        public file_handler(logger logger)
-        {
-            _logger = logger;
-        }
-
         public async Task<string[]> read(string file_name)
         {
             return await File
@@ -34,9 +27,6 @@ namespace getgravatars
             var output_directory = new DirectoryInfo(directory);
             if (!output_directory.Exists)
             {
-                _logger.log($@"
-Creating output directory {output_directory}"
-                );
                 Directory.CreateDirectory(directory);
             }
         }

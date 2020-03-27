@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CommandLine;
 
@@ -6,8 +7,6 @@ namespace getgravatars
 {
     static class program
     {
-        static logger _logger;
-
         const string usage_text = @"
 Usage: getgravatars -i {inputfile} -o {outputdirectory (optional)} -t {gravatarType (optional)} -s {size (optional)}
 allowed gravatarTypes are mp, identicon, monsterid, wavatar, retro, robohash and blank
@@ -25,8 +24,6 @@ author2.othername@company.com|Author2 Othername
 
         static async Task Main(string[] args)
         {
-            _logger = new logger(false);
-
             await Parser
                 .Default
                 .ParseArguments<run_options>(args)
@@ -39,7 +36,7 @@ author2.othername@company.com|Author2 Othername
                     ,
                     _ =>
                     {
-                        _logger.write(usage_text);
+                        Console.WriteLine(usage_text);
                         return Task.FromResult(1);
                     }
                 )
@@ -49,52 +46,34 @@ author2.othername@company.com|Author2 Othername
         static async Task run_with_options(run_options options)
         {
             // no IoC container in a console app - have to make things myself
-            _logger = new logger(options.verbose);
             var parser = new parser(options.output_directory, options);
-            var file_handler = new file_handler(_logger);
+            var file_handler = new file_handler();
             using var downloader = new downloader(file_handler);
 
             file_handler.ensure_that_directory_exists(options.output_directory);
-
-            _logger.log($"Reading {options.input_file}");
 
             var all_lines_input = await file_handler
                 .read(options.input_file)
                 .ConfigureAwait(true);
 
-            _logger.log($"input is {all_lines_input.Length} lines long");
-
             var avatar_infos = all_lines_input
                 .Select(_ => parser.ToAvatarInfo(_));
-
-            _logger.log($"made {avatar_infos.Count()} avatar infos");
 
             var distinct = avatar_infos
                 .GroupBy(_ => _.file_name)
                 .Select(_ => _.First());
 
-            _logger.log($"discarded duplicats avatars - {distinct.Count()} left");
-
-            _logger.write($@"
-Found {distinct.Count()} avatars to download"
-            );
-
-            _logger.log("creating client");
-
             foreach (var info in distinct)
             {
-                _logger.log($"{info.link} -> \t{info.file_name}");
-
                 await downloader
                     .download_and_save_image(info)
                     .ConfigureAwait(false);
             }
 
-            _logger.write("");
-            _logger.write(
-                $"Done. {distinct.Count()} gravatar images have been placed in"
+            Console.Write(
+                $"Done. {distinct.Count()} gravatar images have been placed in "
             );
-            _logger.write($"{options.output_directory}");
+            Console.WriteLine($"{options.output_directory}");
         }
     }
 }
