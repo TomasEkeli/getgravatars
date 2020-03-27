@@ -9,101 +9,124 @@ using System.Threading.Tasks;
 
 namespace app
 {
-    class Program
+    static class Program
     {
         const string base_url = "https://www.gravatar.com/avatar";
+        const string query_string = "s=256&d=identicon";
 
-        static string output_directory = "output";
+        static string output_to = "output";
 
         static async Task Main(string[] args)
         {
             if (args == null || args.Length < 1)
             {
-                System.Console.WriteLine();
-                System.Console.WriteLine("Usage: getgravatars inputfile outputdirectory");
-                System.Console.WriteLine("Duplicates will only be downloaded once");
-                System.Console.WriteLine();
-                System.Console.WriteLine("The inputfile should contain emails and full names, one on each line");
-                System.Console.WriteLine("Like this:");
-                System.Console.WriteLine();
-                System.Console.WriteLine("author.name@company.com|Author Name");
-                System.Console.WriteLine("author2.othername@company.com|Author2 Othername");
-                System.Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine(
+@"Usage: getgravatars {inputfile} {outputdirectory (optional)}
+
+This program downloads the gravatar images of e-mail addresses given in the inputfile
+and stores them as the ""full-name.jpg"" in the output direcotory given (defaults to ""output"")
+
+The inputfile should contain emails and full names, one on each line
+
+Example:
+author.name@company.com|Author Name
+author2.othername@company.com|Author2 Othername
+");
                 return;
             }
 
             var input_file = args[0];
 
-            output_directory = args.Length > 1
+            output_to = args.Length > 1
                 ? args[1]
-                : output_directory;
+                : output_to;
 
-            var dirInfo = new DirectoryInfo(output_directory);
-            if (!dirInfo.Exists)
+            var output_directory = new DirectoryInfo(output_to);
+            if (!output_directory.Exists)
             {
-                Directory.CreateDirectory(output_directory);
+                Console.WriteLine($@"
+Creating output directory {output_directory}"
+                );
+                Directory.CreateDirectory(output_to);
             }
 
-            Console.WriteLine($"Reading {input_file}");
+            Console.WriteLine($@"
+Reading {input_file}"
+            );
 
             var all_lines_input = await File
                 .ReadAllLinesAsync(input_file)
                 .ConfigureAwait(false);
 
             var distinct = all_lines_input
-                .Distinct()
-                .Select(ToAvatarInfo);
+                .Select(ToAvatarInfo)
+                .GroupBy(_ => _.file_name)
+                .Select(_ => _.First());
 
-            Console.WriteLine($"Found {distinct.Count()} distinct avatars to download");
+            Console.WriteLine($@"
+Found {distinct.Count()} avatars to download
+
+Downloading:"
+            );
 
             using var client = new HttpClient();
 
             foreach (var info in distinct)
             {
-                Console.WriteLine($"Downloading {info.FileName}");
+                Console.WriteLine($"{info.link} -> \t{info.file_name}");
 
-                await DownloadAndSaveImage(info, client).ConfigureAwait(false);
+                await download_and_save_image(info, client)
+                    .ConfigureAwait(false);
             }
 
-            Console.WriteLine("Done");
+            Console.WriteLine($@"
+Done. {distinct.Count()} gravatar images have been placed in
+{output_directory.FullName}
+"
+            );
         }
 
-        static async Task DownloadAndSaveImage(AvatarInfo info, HttpClient client)
+        static async Task download_and_save_image(
+            gravatar_info info,
+            HttpClient client
+        )
         {
             var image_bytes = await client
-                .GetByteArrayAsync(info.Link)
+                .GetByteArrayAsync(info.link)
                 .ConfigureAwait(false);
 
             await File
                 .WriteAllBytesAsync(
-                    info.FileName,
+                    info.file_name,
                     image_bytes
                 )
                 .ConfigureAwait(false);
         }
 
-        static AvatarInfo ToAvatarInfo(string input)
+        static gravatar_info ToAvatarInfo(string input)
         {
             var args_split = input.Split("|");
 
             var email = new MailAddress(args_split[0]);
+
             var filename = args_split.Length > 1
-                ? $"{output_directory}/{args_split[1]}.jpg"
+                ? $"{output_to}/{args_split[1]}.jpg"
                 : "gravatar.jpg";
 
-            var hash = ToHash(email);
+            var gravatar_id = gravatar_id_of(email);
 
-            var link = new Uri($"{base_url}/{hash}?s=96&d=identicon");
+            var link = new Uri($"{base_url}/{gravatar_id}?{query_string}");
 
-            return new AvatarInfo
+            return new gravatar_info
             {
-                Address = email,
-                FileName = filename,
-                Link = link
+                address = email,
+                file_name = filename,
+                link = link
             };
         }
 
-        static string ToHash(MailAddress email)
+        static string gravatar_id_of(MailAddress email)
         {
             using var hashing_algorithm = MD5.Create();
             var hashed_bytes = hashing_algorithm
@@ -117,11 +140,11 @@ namespace app
             return string.Join(null, as_strings);
         }
 
-        public struct AvatarInfo
+        public struct gravatar_info
         {
-            public MailAddress Address;
-            public string FileName;
-            public Uri Link;
+            public MailAddress address;
+            public string file_name;
+            public Uri link;
         }
     }
 }

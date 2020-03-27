@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/source/app/bin/Debug/netcoreapp3.1/app.dll",
+            "program": "${workspaceFolder}/source/getgravatars/bin/Debug/netcoreapp3.1/getgravatars.dll",
             "args": ["input/authors.txt"],
-            "cwd": "${workspaceFolder}/source/app",
+            "cwd": "${workspaceFolder}/source/getgravatars",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false
